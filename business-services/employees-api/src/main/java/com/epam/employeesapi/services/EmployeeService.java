@@ -1,18 +1,22 @@
 package com.epam.employeesapi.services;
 
 import com.epam.commons.entity.Employee;
-import com.epam.employeesapi.exceptions.NoEmployeeFoundException;
-import org.apache.commons.lang3.StringUtils;
+import com.epam.employeesapi.repository.EmployeeRepository;
+import com.epam.employeesapi.services.interfaces.EmployeeInterface;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static java.lang.String.format;
-
 @Service
-public class EmployeeService {
-    private List<Employee> employees = Arrays.asList(
+@RequiredArgsConstructor
+public class EmployeeService implements EmployeeInterface {
+    private final EmployeeRepository employeeRepository;
+
+    @Override
+    public Employee findEmployee(String id) {
+        return employeeRepository.getOne(id);
+    }
+
+/*    private List<Employee> employees = Arrays.asList(
             new Employee("0000001", "Ivan", "Ivanov", "Ivan_Ivanov@corpmail.com", "0000001"),
             new Employee("0000002", "Ivan", "Ivanov", "Ivan_Ivanov@corpmail.com", "0000002"),
             new Employee("0000003", "Ivan", "Ivanov", "Ivan_Ivanov@corpmail.com", "0000003"),
@@ -35,5 +39,5 @@ public class EmployeeService {
                 .filter(employee -> StringUtils.equals(employee.getId(), id))
                 .findFirst()
                 .orElseThrow(() -> new NoEmployeeFoundException(format("No employee found for id: %s", id)));
-    }
+    }*/
 }

@@ -1,21 +1,22 @@
 package com.epam.workspacesapi.services;
 
 import com.epam.commons.entity.Workspace;
-import com.epam.workspacesapi.exceptions.NoWorkplaceFoundException;
-import org.apache.commons.lang3.StringUtils;
+import com.epam.workspacesapi.repository.WorkspaceRepository;
+import com.epam.workspacesapi.services.interfaces.WorkspaceInterface;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static com.epam.commons.entity.OSFamily.*;
-import static java.lang.String.format;
-import static java.util.UUID.randomUUID;
-
 @Service
-public class WorkplaceService {
+@RequiredArgsConstructor
+public class WorkplaceService implements WorkspaceInterface {
+    private final WorkspaceRepository workspaceRepository;
 
-    private final List<Workspace> workspaces = Arrays.asList(
+    @Override
+    public Workspace findWorkspace(String id) {
+        return workspaceRepository.getOne(id);
+    }
+
+/*    private final List<Workspace> workspaces = Arrays.asList(
             new Workspace("0000001", 1, 1, randomUUID().toString(), WINDOWS),
             new Workspace("0000002", 1, 2, randomUUID().toString(), WINDOWS),
             new Workspace("0000003", 1, 3, randomUUID().toString(), WINDOWS),
@@ -38,5 +39,5 @@ public class WorkplaceService {
                 .filter(w -> StringUtils.equals(w.getId(), id))
                 .findFirst()
                 .orElseThrow(() -> new NoWorkplaceFoundException(format("No workspace found with id: %s", id)));
-    }
+    }*/
 }
