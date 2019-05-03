@@ -5,10 +5,10 @@ eureka:
 
 spring:
   main:
-#    allow-bean-definition-overriding: true
+    allow-bean-definition-overriding: true
     web-application-type: none
   datasource:
-    url: jdbc:postgresql://postgres:5001/netflix_oss
+    url: jdbc:postgresql://127.0.0.1:5001/postgres?currentSchema=netflix_oss
     username: postgres
     password: 147258369
   jpa:

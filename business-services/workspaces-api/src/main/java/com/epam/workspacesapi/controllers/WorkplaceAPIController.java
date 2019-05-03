@@ -6,9 +6,7 @@ import com.epam.workspacesapi.services.WorkplaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/workspaces")
@@ -20,5 +18,16 @@ public class WorkplaceAPIController implements WorkspaceAPI {
     @RequestMapping("/{id}")
     public Workspace getWorkspaceById(@PathVariable("id") String id) {
         return workplaceService.findWorkspace(id);
+    }
+
+    @PostMapping
+    public void addWorkspace(@RequestBody Workspace workspace) {
+        workplaceService.addWorkspace(workspace);
+    }
+
+    @PutMapping("/{id}")
+    public void saveWorkspace(@PathVariable("id") String id, @RequestBody Workspace workspace) {
+        workspace.setId(id);
+        workplaceService.addWorkspace(workspace);
     }
 }

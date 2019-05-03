@@ -4,9 +4,7 @@ import com.epam.commons.api.WorkspaceAPI;
 import com.epam.commons.entity.Employee;
 import com.epam.employeesapi.services.EmployeeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 //import com.epam.employeesapi.dto.EmployeeWithWorkspaceDetails;
 

@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EnableEurekaClient
-@EnableJpaRepositories(basePackages = {"com.epam.*"})
 @EntityScan("com.epam.commons.*")
 public class WorkplaceApiApplication {
 

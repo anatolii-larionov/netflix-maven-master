@@ -20,8 +20,11 @@ import javax.persistence.Table;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Workspace {
     @Id
+    @Column(name = "id")
     private String id;
+    @Column(name = "unit")
     private int unit;
+    @Column(name = "seat")
     private int seat;
     @Column(name = "serial_number")
     private String serialNumber;
