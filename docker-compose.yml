@@ -1,0 +1,82 @@
+version: '3.7'
+
+services:
+
+  postgresql:
+    image: "postgres"
+    network_mode: bridge
+    container_name: postgres
+    ports:
+      - 5432:5432
+    env_file:
+      - ./env/postgresql.env
+    environment:
+      - POSTGRES_DB=netflix_oss
+
+  config:
+    image: "config-server:8888"
+    container_name: config_server_8888
+    restart: always
+    ports:
+      - 8888:8888
+
+  eureka-service-registry:
+    image: "eureka-server:8282"
+    container_name: eureka_service_8282
+    restart: always
+    ports:
+      - 8282:8282
+    environment:
+      spring.cloud.config.uri: http://config:8888
+
+  workspaces-api:
+    image: "workspaces-api:9090"
+    container_name: workspaces-api_9090
+    restart: always
+    ports:
+      - 9090:9090
+    environment:
+      spring.cloud.config.uri: http://config:8888
+      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+    depends_on:
+      - config
+      - eureka-service-registry
+
+#  workspaces-api_91:
+#    image: "workspaces-api:9090"
+#    container_name: workspaces-api_9091
+#    restart: always
+#    ports:
+#      - 9091:9090
+#    environment:
+#      spring.cloud.config.uri: http://config:8888
+#      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+#    depends_on:
+#      - config
+#      - eureka-service-registry
+
+  employees-api:
+    image: "employees-api:9092"
+    container_name: employess-api_9092
+    restart: always
+    ports:
+      - 9092:9092
+    environment:
+      spring.cloud.config.uri: http://config:8888
+      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+    depends_on:
+      - config
+      - eureka-service-registry
+
+  sample-api-gateway:
+    image: "gateway-api:9094"
+    container_name: gateway_9094
+    restart: always
+    ports:
+      - 9094:9094
+    environment:
+      spring.cloud.config.uri: http://config:8888
+      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+    depends_on:
+      - config
+      - eureka-service-registry

@@ -1,0 +1,9 @@
+FROM openjdk:8-jdk-alpine
+
+RUN mkdir "/opt/service"
+
+VOLUME ["/opt/service"]
+
+ADD "target/eureka-server-0.0.1-SNAPSHOT.jar" "/opt/service/eureka-server-0.0.1-SNAPSHOT.jar"
+
+ENTRYPOINT ["java","-jar","/opt/service/eureka-server-0.0.1-SNAPSHOT.jar"]
