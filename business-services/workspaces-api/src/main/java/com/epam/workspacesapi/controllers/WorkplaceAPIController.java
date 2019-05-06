@@ -17,6 +17,7 @@ public class WorkplaceAPIController implements WorkspaceAPI {
 
     @RequestMapping("/{id}")
     public Workspace getWorkspaceById(@PathVariable("id") String id) {
+        log.info("Instance {} received workspace request", this);
         return workplaceService.findWorkspace(id);
     }
 

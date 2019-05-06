@@ -1,6 +1,7 @@
 filebeat.inputs:
   - type: docker
     combine_partial: true
+#    cri.parse_flags: true
     containers:
       path: "/usr/share/dockerlogs/data"
       stream: "stdout"

@@ -21,10 +21,4 @@ public class WorkplaceService implements WorkspaceInterface {
         workspaceRepository.save(workspace);
     }
 
-//    public Workspace findWorkspace(String id) {
-//        return workspaces.stream()
-//                .filter(w -> StringUtils.equals(w.getId(), id))
-//                .findFirst()
-//                .orElseThrow(() -> new NoWorkplaceFoundException(format("No workspace found with id: %s", id)));
-//    }
 }
