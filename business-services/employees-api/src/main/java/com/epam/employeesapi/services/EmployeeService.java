@@ -21,6 +21,7 @@ public class EmployeeService implements EmployeeInterface {
         employeeRepository.save(employee);
     }
 
+    /*Метод работает без БД*/
 /*    public Employee findEmployee(String id) {
         return employees.stream()
                 .filter(employee -> StringUtils.equals(employee.getId(), id))
