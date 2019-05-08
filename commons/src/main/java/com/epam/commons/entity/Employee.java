@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +19,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "employee")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Proxy(lazy=false)
 public class Employee {
     @Id
     @Column(name = "id")

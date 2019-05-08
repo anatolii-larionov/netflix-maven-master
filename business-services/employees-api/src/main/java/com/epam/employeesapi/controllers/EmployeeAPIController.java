@@ -4,6 +4,7 @@ import com.epam.commons.api.WorkspaceAPI;
 import com.epam.commons.entity.Employee;
 import com.epam.employeesapi.services.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 //import com.epam.employeesapi.dto.EmployeeWithWorkspaceDetails;
@@ -19,6 +20,13 @@ public class EmployeeAPIController {
     public Employee describeEmployee(@PathVariable("id") String id) {
         return employeeService.findEmployee(workspaceAPIClient.getWorkspaceById(id).getId());
     }
+
+    @GetMapping("/")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void setEmployee(@RequestParam("message") String message) {
+
+    }
+
 
     /*Метод с помощью dto вытаскивает информацию о employee и workspace без БД*/
 //    @RequestMapping("/{id}")

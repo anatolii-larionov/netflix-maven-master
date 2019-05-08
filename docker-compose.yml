@@ -2,141 +2,172 @@ version: '3.7'
 
 services:
 
-  filebeat:
-    hostname: filebeat
-    container_name: filebeat
-    image: docker-logs-elk/filebeat:1.0.0
-    build:
-      context: filebeat
-      dockerfile: Dockerfile
+  zoo1:
+    image: zookeeper:3.4.9
+    hostname: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zoo1:2888:3888
     volumes:
-      # needed to access all docker logs (read only) :
-      - "/var/lib/docker/containers:/usr/share/dockerlogs/data:ro"
-      # needed to access additional informations about containers
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    links:
-      - logstash
-  kibana:
-    image: kibana:6.5.2
-    container_name: kibana
-    environment:
-      - "LOGGING_QUIET=true"
-    links:
-      - elasticsearch
-    ports:
-      - 5601:5601
-  logstash:
-    hostname: logstash
-    image: docker-logs-elk/logstash:1.0.0
-    container_name: logstash
-    build:
-      context: logstash
-      dockerfile: Dockerfile
-    ports:
-      - 5044:5044
-    environment:
-      LOG_LEVEL: info
-    links:
-      - elasticsearch
-  elasticsearch:
-    hostname: elasticsearch
-    image: docker-logs-elk/elasticsearch:1.0.0
-    container_name: elasticsearch
-    build:
-      context: elasticsearch
-      dockerfile: Dockerfile
-    environment:
-      - cluster.name=docker-logs-elk-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    ports:
-      - 9200:9200
+      - ./zk-single-kafka-single/zoo1/data:/data
+      - ./zk-single-kafka-single/zoo1/datalog:/datalog
 
-  postgresql:
-    image: "postgres"
-    network_mode: bridge
-    container_name: postgres
+  kafka1:
+    image: confluentinc/cp-kafka:5.2.1
+    hostname: kafka1
     ports:
-      - 5432:5432
-    env_file:
-      - ./env/postgresql.env
+      - "9092:9092"
     environment:
-      - POSTGRES_DB=netflix_oss
-#
-  config:
-    image: "config-server:8888"
-    container_name: config_server_8888
-    restart: always
-    ports:
-      - 8888:8888
-    environment:
-      - "JAVA_OPTS=-Xms256m -Xmx256m"
-
-  eureka-service-registry:
-    image: "eureka-server:8282"
-    container_name: eureka_service_8282
-    restart: always
-    ports:
-      - 8282:8282
-    environment:
-      spring.cloud.config.uri: http://config:8888
-      JAVA_OPTS: "-Xms256m -Xmx256m"
-#
-  workspaces-api:
-    image: "workspaces-api:9090"
-    container_name: workspaces-api_9090
-    restart: always
-    ports:
-      - 9090:9090
-    environment:
-      spring.cloud.config.uri: http://config:8888
-      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
-      JAVA_OPTS: "-Xms256m -Xmx256m"
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./zk-single-kafka-single/kafka1/data:/var/lib/kafka/data
     depends_on:
-      - config
-      - eureka-service-registry
+      - zoo1
 
-#  workspaces-api_91:
-#    image: "workspaces-api:9090"
-#    container_name: workspaces-api_9091
+#  filebeat:
+#    hostname: filebeat
+#    container_name: filebeat
+#    image: docker-logs-elk/filebeat:1.0.0
+#    build:
+#      context: filebeat
+#      dockerfile: Dockerfile
+#    volumes:
+#      # needed to access all docker logs (read only) :
+#      - "/var/lib/docker/containers:/usr/share/dockerlogs/data:ro"
+#      # needed to access additional informations about containers
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#    links:
+#      - logstash
+#  kibana:
+#    image: kibana:6.5.2
+#    container_name: kibana
+#    environment:
+#      - "LOGGING_QUIET=true"
+#    links:
+#      - elasticsearch
+#    ports:
+#      - 5601:5601
+#  logstash:
+#    hostname: logstash
+#    image: docker-logs-elk/logstash:1.0.0
+#    container_name: logstash
+#    build:
+#      context: logstash
+#      dockerfile: Dockerfile
+#    ports:
+#      - 5044:5044
+#    environment:
+#      LOG_LEVEL: info
+#    links:
+#      - elasticsearch
+#  elasticsearch:
+#    hostname: elasticsearch
+#    image: docker-logs-elk/elasticsearch:1.0.0
+#    container_name: elasticsearch
+#    build:
+#      context: elasticsearch
+#      dockerfile: Dockerfile
+#    environment:
+#      - cluster.name=docker-logs-elk-cluster
+#      - bootstrap.memory_lock=true
+#      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    ports:
+#      - 9200:9200
+#
+#  postgresql:
+#    image: "postgres"
+#    network_mode: bridge
+#    container_name: postgres
+#    ports:
+#      - 5432:5432
+#    env_file:
+#      - ./env/postgresql.env
+#    environment:
+#      - POSTGRES_DB=netflix_oss
+##
+#  config:
+#    image: "config-server:8888"
+#    container_name: config_server_8888
 #    restart: always
 #    ports:
-#      - 9091:9090
+#      - 8888:8888
+#    environment:
+#      - "JAVA_OPTS=-Xms256m -Xmx256m"
+#
+#  eureka-service-registry:
+#    image: "eureka-server:8282"
+#    container_name: eureka_service_8282
+#    restart: always
+#    ports:
+#      - 8282:8282
+#    environment:
+#      spring.cloud.config.uri: http://config:8888
+#      JAVA_OPTS: "-Xms256m -Xmx256m"
+##
+#  workspaces-api:
+#    image: "workspaces-api:9090"
+#    container_name: workspaces-api_9090
+#    restart: always
+#    ports:
+#      - 9090:9090
 #    environment:
 #      spring.cloud.config.uri: http://config:8888
 #      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+#      JAVA_OPTS: "-Xms256m -Xmx256m"
 #    depends_on:
 #      - config
 #      - eureka-service-registry
-
-  employees-api:
-    image: "employees-api:9092"
-    container_name: employess-api_9092
-    restart: always
-    ports:
-      - 9092:9092
-    environment:
-      spring.cloud.config.uri: http://config:8888
-      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
-      JAVA_OPTS: "-Xms256m -Xmx256m"
-    depends_on:
-      - config
-      - eureka-service-registry
-
-  sample-api-gateway:
-    image: "gateway-api:9094"
-    container_name: gateway_9094
-    restart: always
-    ports:
-      - 9094:9094
-    environment:
-      spring.cloud.config.uri: http://config:8888
-      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
-      JAVA_OPTS: "-Xms256m -Xmx256m"
-    depends_on:
-      - config
-      - eureka-service-registry
+#
+##  workspaces-api_91:
+##    image: "workspaces-api:9090"
+##    container_name: workspaces-api_9091
+##    restart: always
+##    ports:
+##      - 9091:9090
+##    environment:
+##      spring.cloud.config.uri: http://config:8888
+##      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+##    depends_on:
+##      - config
+##      - eureka-service-registry
+#
+#  employees-api:
+#    image: "employees-api:9092"
+#    container_name: employess-api_9092
+#    restart: always
+#    ports:
+#      - 9093:9093
+#    environment:
+#      spring.cloud.config.uri: http://config:8888
+#      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+#      JAVA_OPTS: "-Xms256m -Xmx256m"
+#    depends_on:
+#      - config
+#      - eureka-service-registry
+#
+#  sample-api-gateway:
+#    image: "gateway-api:9094"
+#    container_name: gateway_9094
+#    restart: always
+#    ports:
+#      - 9094:9094
+#    environment:
+#      spring.cloud.config.uri: http://config:8888
+#      eureka.client.serviceUrl.defaultZone: http://eureka-service-registry:8282/eureka
+#      JAVA_OPTS: "-Xms256m -Xmx256m"
+#    depends_on:
+#      - config
+#      - eureka-service-registry
