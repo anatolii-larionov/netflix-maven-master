@@ -1,5 +1,9 @@
 package com.epam.employeesapi;
 
+import com.epam.employeesapi.services.Sender;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -12,10 +16,17 @@ import org.springframework.integration.config.EnableIntegration;
 @EnableEurekaClient
 @EntityScan("com.epam.commons.*")
 @EnableIntegration
-public class EmployeesApiApplication {
+@RequiredArgsConstructor
+public class EmployeesApiApplication  implements CommandLineRunner {
+	private final Sender sender;
 
 	public static void main(String[] args) {
 		SpringApplication.run(EmployeesApiApplication.class, args);
+	}
+
+	@Override
+	public void run(String... strings) {
+		sender.send("0000002");
 	}
 
 }
