@@ -23,6 +23,13 @@ public class EmployeeService implements EmployeeInterface {
         employeeRepository.save(employee);
     }
 
+    @Override
+    public void update(String id, String workspaceId) {
+         employeeRepository.update(id, workspaceId);
+    }
+
+
+
 
 
 
