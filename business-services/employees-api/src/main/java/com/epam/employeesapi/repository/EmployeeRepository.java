@@ -12,6 +12,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE Employee e SET e.workspaceId = ?2 WHERE e.id = ?1")
+    @Query(value = "UPDATE Employee e SET e.workspaceId = :workspaceId WHERE e.id = :id")
     void update(String id, String workspaceId);
 }

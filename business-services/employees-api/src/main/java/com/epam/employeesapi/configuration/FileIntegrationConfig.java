@@ -3,6 +3,7 @@ package com.epam.employeesapi.configuration;
 import com.epam.commons.entity.Employee;
 import com.epam.employeesapi.services.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ import org.springframework.messaging.MessageChannel;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,8 +68,8 @@ public class FileIntegrationConfig {
 
     private String toCsvLineTransformer(Map messageSource) {
         log.info("received ms - " + messageSource);
-        employeeService.update((String)messageSource.get("id"), (String)messageSource.get("workspace_id"));
-        return messageSource.get("id") + ";" + messageSource.get("workspace_id");
+//        employeeService.update((String)messageSource.get("id"), (String)messageSource.get("workspace_id"));
+        return new Date().toString() + ";" +  messageSource.get("id") + ";" + messageSource.get("workspace_id");
     }
 
     private FileWritingMessageHandler fileWritingMessageHandler() {
@@ -85,10 +87,18 @@ public class FileIntegrationConfig {
                 .from(Files.inboundAdapter(new File("D:/input/"))
                                 .patternFilter("*.csv"),
                         e -> e.poller(Pollers.fixedDelay(5000)))
-                .transform(Files.toStringTransformer())
-                .transform(this::toCsvLineTransformer)
+                .split(Files.splitter())
+                .handle(message -> {
+                    String csvString = (String) message.getPayload();
+                    log.info(csvString);
+                    String[] csvData = StringUtils.split(csvString, ";");
+                    log.info(csvData[0] + ";" + csvData[1]);
+                    employeeService.update(csvData[0], csvData[1]);
+                })
+//                .transform(Files.toStringTransformer())
+//                .transform(this::toCsvLineTransformer)
 //                .channel("processFileChannel")
-                .log("read-file")
+//                .log("read-file")
                 .get();
     }
 
